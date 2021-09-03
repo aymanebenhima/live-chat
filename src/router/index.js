@@ -17,7 +17,7 @@ const routes = [
     // auth guard
     beforeEnter: (to, from, next) => {
       let user = appAuth.currentUser
-      console.log('Current user in auth guard: ', user)
+
       if (!user) {
         next({ name: 'Home' })
       } else {
