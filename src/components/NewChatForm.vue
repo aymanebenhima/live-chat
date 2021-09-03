@@ -5,17 +5,22 @@
         v-model="msg"
         @keypress.enter.passive="sendMsg"
         ></textarea>
+        <div class="error">{{ error }}</div>
   </form>
 </template>
 
 <script>
 import { ref } from 'vue'
+
 import getUser from '@/composables/getUser'
+import useCollection from '@/composables/useCollection'
+
 import { timestamp } from '@/firebase/config'
 
 export default {
     setup() {
         const { user } = getUser()
+        const { addDoc, error } = useCollection('messages')
 
         const msg = ref('')
 
@@ -25,11 +30,12 @@ export default {
                 message: msg.value,
                 createdAt: timestamp()
             }
-            console.log(chat)
-            msg.value = ''
+            await addDoc(chat)
+            if(!error.value)
+                msg.value = ''
         }
 
-        return { msg, sendMsg }
+        return { msg, sendMsg, error }
     }
 }
 </script>
