@@ -8,7 +8,16 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    beforeEnter: (to, from, next) => {
+      let user = appAuth.currentUser
+
+      if (user) {
+        next({ name: 'Chat' })
+      } else {
+        next()
+      }
+    }
   },
   {
     path: '/chat',
