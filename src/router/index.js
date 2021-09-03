@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/views/Home.vue'
 import Chat from '@/views/Chat.vue'
+import { appAuth } from '@/firebase/config'
+
 
 const routes = [
   {
@@ -11,7 +13,17 @@ const routes = [
   {
     path: '/chat',
     name: 'Chat',
-    component: Chat
+    component: Chat,
+    // auth guard
+    beforeEnter: (to, from, next) => {
+      let user = appAuth.currentUser
+      console.log('Current user in auth guard: ', user)
+      if (!user) {
+        next({ name: 'Home' })
+      } else {
+        next()
+      }
+    }
   },
 
 ]
