@@ -1,8 +1,8 @@
 <template>
   <div class="chat-window">
       <div v-if="error">{{ error }}</div>
-      <div v-if="documents" class="messages">
-          <div v-for="doc in documents" :key="doc.id" class="single">
+      <div v-if="documents" class="messages" ref="messages">
+          <div v-for="doc in formattedDocuments" :key="doc.id" class="single">
               <span class="created-at">{{ doc.createdAt }}</span>
               <span class="name">{{ doc.name }}</span>
               <span class="message">{{ doc.message }}</span>
@@ -16,11 +16,28 @@ import { computed, onUpdated, ref } from 'vue'
 
 import getCollection from '@/composables/getCollection'
 
+import { formatDistanceToNow } from 'date-fns'
+
 export default {
     setup() {
         const { error, documents } = getCollection('messages')
 
-        return { error, documents }
+        // format timestamp
+        const formattedDocuments = computed(() => {
+            if (documents.value) {
+                return documents.value.map(doc => {
+                    let time = formatDistanceToNow(doc.createdAt.toDate())
+                    return { ...doc, createdAt: time }
+                })
+            }
+        })
+        // auto-scroll to bottom of messages
+        const messages = ref(null)
+        onUpdated(() => {
+            messages.value.scrollTop = messages.value.scrollHeight
+        })
+
+        return { error, documents, formattedDocuments, messages }
     }
 }
 </script>
@@ -44,7 +61,18 @@ export default {
     margin-right: 6px;
 }
 .messages {
-    max-height: 400px;
+    max-height: 350px !important;
     overflow: auto;
+}
+.messages::-webkit-scrollbar {
+    width: 5px;
+}
+.messages::-webkit-scrollbar-track {
+    background: white;
+    border-radius: 3px;
+}
+.messages::-webkit-scrollbar-thumb {
+    background: #30336b;
+    border-radius: 3px;
 }
 </style>
